@@ -1,7 +1,7 @@
 import * as fs from "fs";
 
 export function read_lines(path: string) {
-  const file = fs.readFileSync("day1/in.txt", "utf-8");
+  const file = fs.readFileSync(path, "utf-8");
   return file.trimEnd().split(/\r?\n/);
 }
 
