@@ -15,3 +15,7 @@ export function match_with_overlap(line: string, regex: RegExp) {
 
   return matches;
 }
+
+export function combine_digits(digits: number[]): number {
+  return digits.reduce((so_far, digit) => 10 * so_far + digit, 0);
+}
