@@ -1,5 +1,13 @@
 import * as fs from "fs";
 
+export function parse_number_sequence(sequence: string) {
+  return sequence.trim().split(/\s+/).map(Number);
+}
+
+export function behind(line: string, marker: string) {
+  return line.substring(line.indexOf(marker) + marker.length);
+}
+
 export function read_lines(path: string) {
   const file = fs.readFileSync(path, "utf-8");
   return file.trimEnd().split(/\r?\n/);

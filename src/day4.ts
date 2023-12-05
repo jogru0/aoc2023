@@ -1,6 +1,4 @@
-function parse_sequence(sequence: string) {
-  return sequence.trim().split(/\s+/).map(Number);
-}
+import * as util from "./util";
 
 class Card {
   winning: number[];
@@ -27,10 +25,10 @@ class Card {
 }
 
 function parse_card(line: string): Card {
-  const matrix = line
-    .substring(line.indexOf(":") + 1)
+  const matrix = util
+    .behind(line, ":")
     .split("|")
-    .map(parse_sequence);
+    .map(util.parse_number_sequence);
 
   return new Card(matrix[0], matrix[1]);
 }

@@ -27,7 +27,7 @@ import * as day23 from "./day23";
 import * as day24 from "./day24";
 import * as day25 from "./day25";
 
-function run(day: number, part: number, lines: string[]): number {
+function run(day: number, part: number, lines: string[]): [number, number] {
   let dyn;
   if (day == 1) {
     dyn = day1;
@@ -84,12 +84,19 @@ function run(day: number, part: number, lines: string[]): number {
   }
 
   if (part == 1) {
-    return dyn.part1(lines);
+    return measure(() => dyn.part1(lines));
   } else if (part == 2) {
-    return dyn.part2(lines);
+    return measure(() => dyn.part2(lines));
   } else {
     throw Error;
   }
+}
+
+function measure(fn: () => number): [number, number] {
+  const before = Date.now();
+  const result = fn();
+  const after = Date.now();
+  return [result, after - before];
 }
 
 function read_input(day: number): string[] {
@@ -110,14 +117,15 @@ if (process.argv.length == 4) {
   const day = Number(process.argv.at(2));
   const part = Number(process.argv.at(3));
   const lines = read_input(day);
-  const result = run(day, part, lines);
+  const [result, time] = run(day, part, lines);
+  console.log(`Execution time: ${time} ms`);
   console.log(result);
 } else {
   let all_right = true;
   for (let day = 1; day < 26; ++day) {
     const lines = read_input(day);
     for (let part = 1; part < 3; ++part) {
-      const actual = run(day, part, lines);
+      const [actual] = run(day, part, lines);
       const expected = get_expected(day, part);
       if (actual != expected) {
         all_right = false;
