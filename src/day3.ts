@@ -35,15 +35,20 @@ class Point {
     this.line = line;
     this.char = char;
   }
+
+  serialize() {
+    return `${this.line}@${this.char}`;
+  }
 }
 
-type SymbolGrid = Record<Point, string>;
+type SymbolGrid = util.SerializeMap<Point, string>;
 
 function parse_grid(lines: string[]): [GridNumber[], SymbolGrid] {
   const numbers: GridNumber[] = [];
-  const symbols = new Map<Point, string>();
+  const symbols = new util.SerializeMap<Point, string>();
 
   lines.map((line, line_id) => {
+    line = line.concat(".");
     let digits: number[] = [];
     for (let char_id = 0; char_id < line.length; ++char_id) {
       const char = line[char_id];
@@ -78,6 +83,39 @@ export function part1(lines: string[]): number {
   }, 0);
 }
 
+type GearGrid = util.SerializeMap<Point, number[]>;
+
+function calculate_gear_grid(
+  numbers: GridNumber[],
+  symbols: SymbolGrid
+): GearGrid {
+  const gear_grid = new util.SerializeMap<Point, number[]>();
+
+  numbers.map((grid_number) => {
+    grid_number.neighbors().map((neighbor) => {
+      if (symbols.get(neighbor) == "*") {
+        if (gear_grid.has(neighbor)) {
+          gear_grid.get(neighbor).push(grid_number.value);
+        } else {
+          gear_grid.set(neighbor, [grid_number.value]);
+        }
+      }
+    });
+  });
+
+  return gear_grid;
+}
+
 export function part2(lines: string[]): number {
-  return lines.length;
+  const [numbers, symbols] = parse_grid(lines);
+
+  const gear_grid = calculate_gear_grid(numbers, symbols);
+
+  let result = 0;
+  gear_grid.forEach((n: number[]) => {
+    if (n.length == 2) {
+      result += n[0] * n[1];
+    }
+  });
+  return result;
 }
