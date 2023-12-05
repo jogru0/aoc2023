@@ -1,3 +1,5 @@
+import * as util from "./util";
+
 class Cubes {
   red: number;
   green: number;
@@ -54,12 +56,7 @@ function element_wise_max(iterations: Cubes[]): Cubes {
 }
 
 function lines_to_game_to_iteration_to_cubes(lines: string[]) {
-  return lines.map((line) =>
-    line
-      .substring(line.indexOf(": ") + 2)
-      .split("; ")
-      .map(to_cubes)
-  );
+  return lines.map((line) => util.behind(line, ": ").split("; ").map(to_cubes));
 }
 
 export function part1(lines: string[]) {
