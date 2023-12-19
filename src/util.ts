@@ -50,4 +50,28 @@ export class SerializeMap<K extends Serializable, V> {
   forEach(callbackfn: (value: V) => void) {
     this.map.forEach(callbackfn);
   }
+
+  size() {
+    return this.map.size;
+  }
+}
+
+export class SerializeSet<K extends Serializable> {
+  private map: Map<string, K> = new Map();
+
+  has(key: K): boolean {
+    return this.map.has(key.serialize());
+  }
+
+  add(key: K) {
+    this.map.set(key.serialize(), key);
+  }
+
+  size() {
+    return this.map.size;
+  }
+
+  forEach(callbackfn: (value: K) => void) {
+    this.map.forEach(callbackfn);
+  }
 }
