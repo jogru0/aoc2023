@@ -59,22 +59,12 @@ class Part {
     let unruled;
 
     if (ruled_range !== undefined) {
-      ruled = new Part([
-        this.ranges[0],
-        this.ranges[1],
-        this.ranges[2],
-        this.ranges[3],
-      ]);
+      ruled = new Part([...this.ranges]);
       ruled.ranges[prop] = ruled_range;
     }
 
     if (unruled_range !== undefined) {
-      unruled = new Part([
-        this.ranges[0],
-        this.ranges[1],
-        this.ranges[2],
-        this.ranges[3],
-      ]);
+      unruled = new Part([...this.ranges]);
       unruled.ranges[prop] = unruled_range;
     }
 
@@ -163,10 +153,6 @@ class Flows {
 
     const flow = this.flows[goto];
 
-    if (flow === undefined) {
-      console.log(goto);
-    }
-
     let sum = 0;
 
     for (let r = 0; r < flow.rules.length; ++r) {
@@ -197,15 +183,13 @@ export function part1(lines: string[]): number {
 export function part2(lines: string[]): number {
   const flows = new Flows(lines.slice(0, lines.indexOf("")));
 
-  console.log(flows.flows[0]);
-  console.log(flows.flows[1]);
-  console.log(flows.start);
-
-  const x = new Range(1, 4001);
-  const m = new Range(1, 4001);
-  const a = new Range(1, 4001);
-  const s = new Range(1, 4001);
-  const all_possibilities = new Part([x, m, a, s]);
+  const full_range = new Range(1, 4001);
+  const all_possibilities = new Part([
+    full_range,
+    full_range,
+    full_range,
+    full_range,
+  ]);
 
   return flows.count(all_possibilities, flows.start);
 }

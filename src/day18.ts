@@ -42,8 +42,7 @@ class Point {
 }
 
 export function part1(lines: string[]): number {
-  let instructions = parse(lines);
-  console.log(instructions);
+  const instructions = parse(lines);
 
   const grid = new util.SerializeSet<Point>();
 
