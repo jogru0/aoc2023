@@ -7,6 +7,12 @@ function parse(lines: string[]): [string, number][] {
   });
 }
 
+function parse_2(lines: string[]): [number, number][] {
+  return lines.map((line) => {
+    return [Number(line.at(-2)), parseInt(line.slice(-7, -2), 16)];
+  });
+}
+
 class Point {
   line: number;
   char: number;
@@ -66,7 +72,7 @@ export function part1(lines: string[]): number {
   });
 
   up_grid.forEach((point) => {
-    while (true) {
+    for (;;) {
       point = point.neighbor("R");
       if (grid.has(point)) {
         break;
@@ -80,5 +86,55 @@ export function part1(lines: string[]): number {
 }
 
 export function part2(lines: string[]): number {
-  return lines.length;
+  const instructions = parse_2(lines);
+
+  // const instructions = [
+  //   [0, 19],
+  //   [1, 9],
+  //   [2, 19],
+  //   [3, 9],
+  // ];
+
+  const current = new Point(0, 0);
+
+  let sum = 0;
+
+  instructions.forEach(([dir, steps], i, inst) => {
+    switch (dir) {
+      case 0: {
+        current.char += steps;
+        break;
+      }
+      case 1: {
+        current.line += steps;
+        let mul = steps - 1;
+        if (inst.at(i - 1)[0] == 0) {
+          mul += 1;
+        }
+        if (inst.at((i + 1) % inst.length)[0] == 2) {
+          mul += 1;
+        }
+
+        sum += (current.char + 1) * mul;
+        break;
+      }
+      case 2: {
+        current.char -= steps;
+        break;
+      }
+      case 3: {
+        current.line -= steps;
+        let mul = steps - 1;
+        if (inst.at(i - 1)[0] == 2) {
+          mul += 1;
+        }
+        if (inst.at((i + 1) % inst.length)[0] == 0) {
+          mul += 1;
+        }
+        sum -= current.char * mul;
+      }
+    }
+  });
+
+  return sum;
 }
