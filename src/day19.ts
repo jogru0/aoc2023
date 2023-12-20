@@ -36,7 +36,7 @@ class Range {
   }
 }
 
-class Part {
+class PartRange {
   ranges: [Range, Range, Range, Range];
 
   count(): number {
@@ -52,37 +52,23 @@ class Part {
     this.ranges = ranges;
   }
 
-  cut(is_below: boolean, t: number, prop: number): [Part, Part] {
+  cut(is_below: boolean, t: number, prop: number): [PartRange, PartRange] {
     const [ruled_range, unruled_range] = this.ranges[prop].cut(t, is_below);
 
     let ruled;
     let unruled;
 
     if (ruled_range !== undefined) {
-      ruled = new Part([...this.ranges]);
+      ruled = new PartRange([...this.ranges]);
       ruled.ranges[prop] = ruled_range;
     }
 
     if (unruled_range !== undefined) {
-      unruled = new Part([...this.ranges]);
+      unruled = new PartRange([...this.ranges]);
       unruled.ranges[prop] = unruled_range;
     }
 
     return [ruled, unruled];
-  }
-}
-
-class Rule {
-  prop: number;
-  is_below: boolean;
-  t: number;
-  goto: number;
-
-  constructor(prop: number, is_below: boolean, t: number, goto: number) {
-    this.prop = prop;
-    this.is_below = is_below;
-    this.t = t;
-    this.goto = goto;
   }
 }
 
@@ -96,8 +82,67 @@ class Flow {
   }
 }
 
-function to_prop(char: string): number {
-  switch (char) {
+class Part {
+  x: number;
+  m: number;
+  a: number;
+  s: number;
+
+  constructor(x: number, m: number, a: number, s: number) {
+    this.x = x;
+    this.m = m;
+    this.a = a;
+    this.s = s;
+  }
+
+  value() {
+    return this.x + this.m + this.a + this.s;
+  }
+
+  property(p: number): number {
+    switch (p) {
+      case 0:
+        return this.x;
+      case 1:
+        return this.m;
+      case 2:
+        return this.a;
+      case 3:
+        return this.s;
+    }
+  }
+
+  apply_rule(rule: Rule): number {
+    const val = this.property(rule.property);
+    if (
+      (rule.has_to_be_small && val < rule.limit) ||
+      (!rule.has_to_be_small && rule.limit < val)
+    ) {
+      return rule.goto;
+    }
+  }
+
+  apply_flow(flow: Workflow): number {
+    for (let i = 0; i < flow.rules.length; ++i) {
+      const res = this.apply_rule(flow.rules[i]);
+      if (res !== undefined) {
+        return res;
+      }
+    }
+    return flow.fallback;
+  }
+
+  is_accepted(flows: Workflow[], current: number): boolean {
+    while (0 <= current) {
+      current = this.apply_flow(flows[current]);
+    }
+
+    return current == -1;
+  }
+}
+
+function to_prop(p: string): number {
+  switch (p) {
     case "x":
       return 0;
     case "m":
@@ -143,7 +188,7 @@ class Flows {
     this.start = str_to_id.get("in");
   }
 
-  count(part: Part, goto: number): number {
+  count(part: PartRange, goto: number): number {
     if (goto == -1) {
       return part.count();
     }
@@ -158,7 +203,11 @@ class Flows {
     for (let r = 0; r < flow.rules.length; ++r) {
       const rule = flow.rules[r];
 
-      const [ruled, unruled] = part.cut(rule.is_below, rule.t, rule.prop);
+      const [ruled, unruled] = part.cut(
+        rule.has_to_be_small,
+        rule.limit,
+        rule.property
+      );
 
       if (ruled !== undefined) {
         sum += this.count(ruled, rule.goto);
@@ -176,15 +225,100 @@ class Flows {
   }
 }
 
+class Rule {
+  property: number;
+  has_to_be_small: boolean;
+  limit: number;
+  goto: number;
+
+  constructor(
+    property: number,
+    has_to_be_small: boolean,
+    limit: number,
+    goto: number
+  ) {
+    this.property = property;
+    this.has_to_be_small = has_to_be_small;
+    this.limit = limit;
+    this.goto = goto;
+  }
+}
+
+class Workflow {
+  rules: Rule[];
+  fallback: number;
+
+  constructor(rules: Rule[], fallback: number) {
+    this.rules = rules;
+    this.fallback = fallback;
+  }
+}
+
+function parse(lines: string[]): [Workflow[], number, Part[]] {
+  const empty_line = lines.indexOf("");
+
+  const name_to_index = new Map<string, number>();
+
+  const to_index = (input: string) => {
+    switch (input) {
+      case "R":
+        return -2;
+      case "A":
+        return -1;
+    }
+    return name_to_index.get(input);
+  };
+
+  lines.slice(0, empty_line).map((line, index) => {
+    const name = line.substring(0, line.indexOf("{"));
+    name_to_index.set(name, index);
+  });
+
+  const start = to_index("in");
+
+  const workflows = lines.slice(0, empty_line).map((line) => {
+    const rule_strings = line.slice(line.indexOf("{") + 1, -1).split(",");
+    const fallback = to_index(rule_strings.pop());
+    const rules = rule_strings.map((rule_string) => {
+      const [l, r] = rule_string.split(":");
+      const property = to_prop(l[0]);
+      const has_to_be_small = l[1] == "<";
+      const limit = Number(l.slice(2));
+      const goto = to_index(r);
+
+      return new Rule(property, has_to_be_small, limit, goto);
+    });
+    return new Workflow(rules, fallback);
+  });
+
+  const parts = lines.slice(empty_line + 1).map((line) => {
+    const [x, m, a, s] = line
+      .slice(1, -1)
+      .split(",")
+      .map((aeqb) => Number(aeqb.split("=")[1]));
+    return new Part(x, m, a, s);
+  });
+
+  return [workflows, start, parts];
+}
+
 export function part1(lines: string[]): number {
-  return lines.length;
+  const [flows, start, parts] = parse(lines);
+
+  return parts.reduce((sum, part) => {
+    if (part.is_accepted(flows, start)) {
+      return sum + part.value();
+    } else {
+      return sum;
+    }
+  }, 0);
 }
 
 export function part2(lines: string[]): number {
   const flows = new Flows(lines.slice(0, lines.indexOf("")));
 
   const full_range = new Range(1, 4001);
-  const all_possibilities = new Part([
+  const all_possibilities = new PartRange([
     full_range,
     full_range,
     full_range,
