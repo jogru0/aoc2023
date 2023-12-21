@@ -13,48 +13,34 @@ function parse_2(lines: string[]): [number, number][] {
   });
 }
 
-class Point {
-  line: number;
-  char: number;
-
-  constructor(line: number, char: number) {
-    this.line = line;
-    this.char = char;
+function neighbor(point: util.Point, direction: string): util.Point {
+  const result = new util.Point(point.line, point.char);
+  switch (direction) {
+    case "L":
+      result.char -= 1;
+      break;
+    case "R":
+      result.char += 1;
+      break;
+    case "U":
+      result.line -= 1;
+      break;
+    case "D":
+      result.line += 1;
+      break;
   }
 
-  neighbor(direction: string): Point {
-    const result = new Point(this.line, this.char);
-    switch (direction) {
-      case "L":
-        result.char -= 1;
-        break;
-      case "R":
-        result.char += 1;
-        break;
-      case "U":
-        result.line -= 1;
-        break;
-      case "D":
-        result.line += 1;
-        break;
-    }
-
-    return result;
-  }
-
-  serialize() {
-    return `${this.line}@${this.char}`;
-  }
+  return result;
 }
 
 export function part1(lines: string[]): number {
   const instructions = parse(lines);
 
-  const grid = new util.SerializeSet<Point>();
+  const grid = new util.SerializeSet<util.Point>();
 
-  const up_grid = new util.SerializeSet<Point>();
+  const up_grid = new util.SerializeSet<util.Point>();
 
-  let current = new Point(0, 0);
+  let current = new util.Point(0, 0);
 
   grid.add(current);
   instructions.forEach((instruction) => {
@@ -63,7 +49,7 @@ export function part1(lines: string[]): number {
     }
 
     for (let i = 0; i < instruction[1]; ++i) {
-      current = current.neighbor(instruction[0]);
+      current = neighbor(current, instruction[0]);
       grid.add(current);
       if (instruction[0] == "U") {
         up_grid.add(current);
@@ -73,7 +59,7 @@ export function part1(lines: string[]): number {
 
   up_grid.forEach((point) => {
     for (;;) {
-      point = point.neighbor("R");
+      point = neighbor(point, "R");
       if (grid.has(point)) {
         break;
       } else {
@@ -88,7 +74,7 @@ export function part1(lines: string[]): number {
 export function part2(lines: string[]): number {
   const instructions = parse_2(lines);
 
-  const current = new Point(0, 0);
+  const current = new util.Point(0, 0);
 
   let sum = 0;
 

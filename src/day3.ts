@@ -13,39 +13,25 @@ class GridNumber {
     this.value = util.combine_digits(digits);
   }
 
-  neighbors(): Point[] {
+  neighbors(): util.Point[] {
     const result = [];
 
     for (let c = this.start_char - 1; c < this.end_char + 2; ++c) {
-      result.push(new Point(this.line - 1, c));
-      result.push(new Point(this.line + 1, c));
+      result.push(new util.Point(this.line - 1, c));
+      result.push(new util.Point(this.line + 1, c));
     }
-    result.push(new Point(this.line, this.start_char - 1));
-    result.push(new Point(this.line, this.end_char + 1));
+    result.push(new util.Point(this.line, this.start_char - 1));
+    result.push(new util.Point(this.line, this.end_char + 1));
 
     return result;
   }
 }
 
-class Point {
-  line: number;
-  char: number;
-
-  constructor(line: number, char: number) {
-    this.line = line;
-    this.char = char;
-  }
-
-  serialize() {
-    return `${this.line}@${this.char}`;
-  }
-}
-
-type SymbolGrid = util.SerializeMap<Point, string>;
+type SymbolGrid = util.SerializeMap<util.Point, string>;
 
 function parse_grid(lines: string[]): [GridNumber[], SymbolGrid] {
   const numbers: GridNumber[] = [];
-  const symbols = new util.SerializeMap<Point, string>();
+  const symbols = new util.SerializeMap<util.Point, string>();
 
   lines.map((line, line_id) => {
     line = line.concat(".");
@@ -60,7 +46,7 @@ function parse_grid(lines: string[]): [GridNumber[], SymbolGrid] {
         }
 
         if (char != ".") {
-          symbols.set(new Point(line_id, char_id), char);
+          symbols.set(new util.Point(line_id, char_id), char);
         }
       } else {
         digits.push(digit);
@@ -83,13 +69,13 @@ export function part1(lines: string[]): number {
   }, 0);
 }
 
-type GearGrid = util.SerializeMap<Point, number[]>;
+type GearGrid = util.SerializeMap<util.Point, number[]>;
 
 function calculate_gear_grid(
   numbers: GridNumber[],
   symbols: SymbolGrid
 ): GearGrid {
-  const gear_grid = new util.SerializeMap<Point, number[]>();
+  const gear_grid = new util.SerializeMap<util.Point, number[]>();
 
   numbers.map((grid_number) => {
     grid_number.neighbors().map((neighbor) => {
