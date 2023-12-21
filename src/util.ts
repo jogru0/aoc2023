@@ -79,3 +79,30 @@ export class SerializeSet<K extends Serializable> {
 export const gcd = (a, b) => (b == 0 ? a : gcd(b, a % b));
 export const lcm = (a, b) => (a / gcd(a, b)) * b;
 export const lcmAll = (ns) => ns.reduce(lcm, 1);
+
+export class Point {
+  line: number;
+  char: number;
+
+  constructor(line: number, char: number) {
+    this.line = line;
+    this.char = char;
+  }
+
+  neighbors(): [Point, Point, Point, Point] {
+    return [
+      new Point(this.line - 1, this.char),
+      new Point(this.line + 1, this.char),
+      new Point(this.line, this.char - 1),
+      new Point(this.line, this.char + 1),
+    ];
+  }
+
+  serialize() {
+    return `${this.line}@${this.char}`;
+  }
+}
+
+export function pos_mod(n, m) {
+  return ((n % m) + m) % m;
+}

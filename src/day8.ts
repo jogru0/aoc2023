@@ -148,7 +148,7 @@ function combine(dp1: DelayedPeriod, dp2: DelayedPeriod) {
     possible_d += dp1.p;
   }
 
-  let p = util.lcm(dp1.p, dp2.p);
+  const p = util.lcm(dp1.p, dp2.p);
 
   return new DelayedPeriod(possible_d, p);
 }
