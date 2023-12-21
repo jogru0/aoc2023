@@ -75,3 +75,7 @@ export class SerializeSet<K extends Serializable> {
     this.map.forEach(callbackfn);
   }
 }
+
+export const gcd = (a, b) => (b == 0 ? a : gcd(b, a % b));
+export const lcm = (a, b) => (a / gcd(a, b)) * b;
+export const lcmAll = (ns) => ns.reduce(lcm, 1);

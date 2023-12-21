@@ -88,13 +88,6 @@ export function part1(lines: string[]): number {
 export function part2(lines: string[]): number {
   const instructions = parse_2(lines);
 
-  // const instructions = [
-  //   [0, 19],
-  //   [1, 9],
-  //   [2, 19],
-  //   [3, 9],
-  // ];
-
   const current = new Point(0, 0);
 
   let sum = 0;

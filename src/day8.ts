@@ -133,9 +133,6 @@ class DelayedPeriod {
   }
 }
 
-const gcd = (a, b) => (b == 0 ? a : gcd(b, a % b));
-const lcm = (a, b) => (a / gcd(a, b)) * b;
-
 function combine(dp1: DelayedPeriod, dp2: DelayedPeriod) {
   if (dp1.p < dp2.p) {
     [dp1, dp2] = [dp2, dp1];
@@ -151,7 +148,7 @@ function combine(dp1: DelayedPeriod, dp2: DelayedPeriod) {
     possible_d += dp1.p;
   }
 
-  let p = lcm(dp1.p, dp2.p);
+  let p = util.lcm(dp1.p, dp2.p);
 
   return new DelayedPeriod(possible_d, p);
 }
