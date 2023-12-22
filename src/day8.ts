@@ -194,5 +194,5 @@ export function part2(lines: string[]): number {
     code_pointer %= path.length;
   }
 
-  return Math.max(...combined.map((dp) => dp.d));
+  return Math.min(...combined.map((dp) => dp.d));
 }
