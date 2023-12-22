@@ -106,3 +106,14 @@ export class Point {
 export function pos_mod(n, m) {
   return ((n % m) + m) % m;
 }
+
+export function transpose(map: string[]): string[] {
+  if (map.length == 0 || map[0].length == 0) {
+    return [];
+  }
+
+  const result: string[] = [];
+  [...map[0]].forEach(() => result.push(""));
+  map.forEach((line) => [...line].forEach((c, i) => (result[i] += c)));
+  return result;
+}

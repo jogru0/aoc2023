@@ -1,3 +1,5 @@
+import * as util from "./util";
+
 function parse(lines: string[]): string[][] {
   lines.push("");
   let index = 0;
@@ -70,23 +72,12 @@ function horizontal_smudge(map: string[]): number {
   return 0;
 }
 
-function transpose(map: string[]): string[] {
-  if (map.length == 0 || map[0].length == 0) {
-    return [];
-  }
-
-  const result: string[] = [];
-  [...map[0]].forEach(() => result.push(""));
-  map.forEach((line) => [...line].forEach((c, i) => (result[i] += c)));
-  return result;
-}
-
 function get_value(map: string[]): number {
-  return 100 * horizontal(map) + horizontal(transpose(map));
+  return 100 * horizontal(map) + horizontal(util.transpose(map));
 }
 
 function get_value_2(map: string[]): number {
-  return 100 * horizontal_smudge(map) + horizontal_smudge(transpose(map));
+  return 100 * horizontal_smudge(map) + horizontal_smudge(util.transpose(map));
 }
 
 export function part1(lines: string[]): number {
