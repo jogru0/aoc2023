@@ -1,17 +1,10 @@
 import * as util from "./util";
 
-enum Direction {
-  Up,
-  Down,
-  Left,
-  Right,
-}
-
 export class Segment {
   entered_point: util.Point;
-  direction: Direction;
+  direction: util.Direction;
 
-  constructor(entered_point: util.Point, direction: Direction) {
+  constructor(entered_point: util.Point, direction: util.Direction) {
     this.entered_point = entered_point;
     this.direction = direction;
   }
@@ -22,88 +15,66 @@ export class Segment {
 }
 
 function resulting_directions(
-  direction: Direction,
+  direction: util.Direction,
   object: string
-): Direction[] {
+): util.Direction[] {
   switch (direction) {
-    case Direction.Up:
+    case util.Direction.Up:
       switch (object) {
         case ".":
-          return [Direction.Up];
+          return [util.Direction.Up];
         case "/":
-          return [Direction.Right];
+          return [util.Direction.Right];
         case "\\":
-          return [Direction.Left];
+          return [util.Direction.Left];
         case "-":
-          return [Direction.Left, Direction.Right];
+          return [util.Direction.Left, util.Direction.Right];
         case "|":
-          return [Direction.Up];
+          return [util.Direction.Up];
       }
       break;
-    case Direction.Down:
+    case util.Direction.Down:
       switch (object) {
         case ".":
-          return [Direction.Down];
+          return [util.Direction.Down];
         case "/":
-          return [Direction.Left];
+          return [util.Direction.Left];
         case "\\":
-          return [Direction.Right];
+          return [util.Direction.Right];
         case "-":
-          return [Direction.Left, Direction.Right];
+          return [util.Direction.Left, util.Direction.Right];
         case "|":
-          return [Direction.Down];
+          return [util.Direction.Down];
       }
       break;
-    case Direction.Left:
+    case util.Direction.Left:
       switch (object) {
         case ".":
-          return [Direction.Left];
+          return [util.Direction.Left];
         case "/":
-          return [Direction.Down];
+          return [util.Direction.Down];
         case "\\":
-          return [Direction.Up];
+          return [util.Direction.Up];
         case "-":
-          return [Direction.Left];
+          return [util.Direction.Left];
         case "|":
-          return [Direction.Up, Direction.Down];
+          return [util.Direction.Up, util.Direction.Down];
       }
       break;
-    case Direction.Right:
+    case util.Direction.Right:
       switch (object) {
         case ".":
-          return [Direction.Right];
+          return [util.Direction.Right];
         case "/":
-          return [Direction.Up];
+          return [util.Direction.Up];
         case "\\":
-          return [Direction.Down];
+          return [util.Direction.Down];
         case "-":
-          return [Direction.Right];
+          return [util.Direction.Right];
         case "|":
-          return [Direction.Up, Direction.Down];
+          return [util.Direction.Up, util.Direction.Down];
       }
   }
-}
-
-function go_in_direction(point: util.Point, direction: Direction): util.Point {
-  switch (direction) {
-    case Direction.Up:
-      return new util.Point(point.line - 1, point.char);
-    case Direction.Down:
-      return new util.Point(point.line + 1, point.char);
-    case Direction.Left:
-      return new util.Point(point.line, point.char - 1);
-    case Direction.Right:
-      return new util.Point(point.line, point.char + 1);
-  }
-}
-
-function in_bounds(p: util.Point, lines: string[]): boolean {
-  return (
-    0 <= p.line &&
-    p.line < lines.length &&
-    0 <= p.char &&
-    p.char < lines[0].length
-  );
 }
 
 function simulate(segment: Segment, lines: string[]): Segment[] {
@@ -112,8 +83,11 @@ function simulate(segment: Segment, lines: string[]): Segment[] {
     segment.direction,
     lines[segment.entered_point.line][segment.entered_point.char]
   )) {
-    const new_entered_point = go_in_direction(segment.entered_point, direction);
-    if (in_bounds(new_entered_point, lines)) {
+    const new_entered_point = util.go_in_direction(
+      segment.entered_point,
+      direction
+    );
+    if (util.in_bounds(new_entered_point, lines)) {
       result.push(new Segment(new_entered_point, direction));
     }
   }
@@ -144,7 +118,10 @@ function energized(lines: string[], initial: Segment): number {
 }
 
 export function part1(lines: string[]): number {
-  return energized(lines, new Segment(new util.Point(0, 0), Direction.Right));
+  return energized(
+    lines,
+    new Segment(new util.Point(0, 0), util.Direction.Right)
+  );
 }
 
 export function part2(lines: string[]): number {
@@ -153,15 +130,15 @@ export function part2(lines: string[]): number {
 
   const initials: Segment[] = [];
   for (let l = 0; l < number_lines; ++l) {
-    initials.push(new Segment(new util.Point(l, 0), Direction.Right));
+    initials.push(new Segment(new util.Point(l, 0), util.Direction.Right));
     initials.push(
-      new Segment(new util.Point(l, number_chars - 1), Direction.Left)
+      new Segment(new util.Point(l, number_chars - 1), util.Direction.Left)
     );
   }
   for (let c = 0; c < number_chars; ++c) {
-    initials.push(new Segment(new util.Point(0, c), Direction.Down));
+    initials.push(new Segment(new util.Point(0, c), util.Direction.Down));
     initials.push(
-      new Segment(new util.Point(number_lines - 1, c), Direction.Up)
+      new Segment(new util.Point(number_lines - 1, c), util.Direction.Up)
     );
   }
 

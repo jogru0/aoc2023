@@ -71,6 +71,10 @@ export class SerializeSet<K extends Serializable> {
     return this.map.size;
   }
 
+  delete(key: K) {
+    return this.map.delete(key.serialize());
+  }
+
   forEach(callbackfn: (value: K) => void) {
     this.map.forEach(callbackfn);
   }
@@ -116,4 +120,33 @@ export function transpose(map: string[]): string[] {
   [...map[0]].forEach(() => result.push(""));
   map.forEach((line) => [...line].forEach((c, i) => (result[i] += c)));
   return result;
+}
+
+export enum Direction {
+  Up,
+  Down,
+  Left,
+  Right,
+}
+
+export function go_in_direction(point: Point, direction: Direction): Point {
+  switch (direction) {
+    case Direction.Up:
+      return new Point(point.line - 1, point.char);
+    case Direction.Down:
+      return new Point(point.line + 1, point.char);
+    case Direction.Left:
+      return new Point(point.line, point.char - 1);
+    case Direction.Right:
+      return new Point(point.line, point.char + 1);
+  }
+}
+
+export function in_bounds(p: Point, lines: string[]): boolean {
+  return (
+    0 <= p.line &&
+    p.line < lines.length &&
+    0 <= p.char &&
+    p.char < lines[p.line].length
+  );
 }
