@@ -1,1 +1,1 @@
-I don't know any Type-/JavaScript.
+Let's learn Type-/JavaScript.
